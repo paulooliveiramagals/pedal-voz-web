@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pedal Virtual de Voz Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            boxShadow: {
+              pedal: "0 30px 80px rgba(0, 0, 0, 0.55), inset 0 2px 2px rgba(255,255,255,0.08)",
+              knob: "inset 0 2px 2px rgba(255,255,255,0.12), inset 0 -8px 12px rgba(0,0,0,0.45), 0 10px 24px rgba(0,0,0,0.42)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+    <main class="mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 py-10">
+      <section class="w-full max-w-6xl rounded-[2rem] border border-zinc-700/70 bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 p-6 shadow-pedal md:p-10">
+        <header class="mb-8 flex flex-col gap-4 border-b border-zinc-700/80 pb-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.28em] text-cyan-400">Voice Pedal SaaS Edition</p>
+            <h1 class="mt-1 text-3xl font-semibold text-zinc-50 md:text-4xl">Pedal Virtual de Voz Profissional</h1>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="btnMic" class="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-300 transition hover:bg-cyan-500/20">Ativar Microfone</button>
+            <button id="btnBypass" class="rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500/20">Bypass: OFF</button>
+          </div>
+        </header>
+
+        <div class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <section class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div class="rounded-2xl border border-zinc-700 bg-zinc-900/70 p-5">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-zinc-300">Reverb</h2>
+              <label class="mt-4 block text-xs text-zinc-400" for="reverbMix">Mix</label>
+              <input id="reverbMix" type="range" min="0" max="1" step="0.01" value="0.28" class="mt-2 w-full accent-cyan-400" />
+              <label class="mt-4 block text-xs text-zinc-400" for="reverbTime">Decay</label>
+              <input id="reverbTime" type="range" min="0.2" max="4" step="0.1" value="1.4" class="mt-2 w-full accent-cyan-400" />
+            </div>
+
+            <div class="rounded-2xl border border-zinc-700 bg-zinc-900/70 p-5">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-zinc-300">Delay</h2>
+              <label class="mt-4 block text-xs text-zinc-400" for="delayTime">Time</label>
+              <input id="delayTime" type="range" min="0" max="0.9" step="0.01" value="0.24" class="mt-2 w-full accent-cyan-400" />
+              <label class="mt-4 block text-xs text-zinc-400" for="delayFeedback">Feedback</label>
+              <input id="delayFeedback" type="range" min="0" max="0.85" step="0.01" value="0.34" class="mt-2 w-full accent-cyan-400" />
+            </div>
+
+            <div class="rounded-2xl border border-zinc-700 bg-zinc-900/70 p-5 md:col-span-2 xl:col-span-1">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-zinc-300">EQ 3 Bandas</h2>
+              <label class="mt-4 block text-xs text-zinc-400" for="eqLow">Grave</label>
+              <input id="eqLow" type="range" min="-18" max="18" step="1" value="0" class="mt-2 w-full accent-cyan-400" />
+              <label class="mt-4 block text-xs text-zinc-400" for="eqMid">Médio</label>
+              <input id="eqMid" type="range" min="-18" max="18" step="1" value="0" class="mt-2 w-full accent-cyan-400" />
+              <label class="mt-4 block text-xs text-zinc-400" for="eqHigh">Agudo</label>
+              <input id="eqHigh" type="range" min="-18" max="18" step="1" value="0" class="mt-2 w-full accent-cyan-400" />
+            </div>
+
+            <div class="rounded-2xl border border-zinc-700 bg-zinc-900/70 p-5 md:col-span-2 xl:col-span-3">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-zinc-300">Compressor Simples</h2>
+              <div class="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                  <label class="block text-xs text-zinc-400" for="compThreshold">Threshold (dB)</label>
+                  <input id="compThreshold" type="range" min="-60" max="0" step="1" value="-24" class="mt-2 w-full accent-cyan-400" />
+                </div>
+                <div>
+                  <label class="block text-xs text-zinc-400" for="compRatio">Ratio</label>
+                  <input id="compRatio" type="range" min="1" max="12" step="0.1" value="3" class="mt-2 w-full accent-cyan-400" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="rounded-2xl border border-zinc-700 bg-zinc-900/50 p-5">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-zinc-300">VU Meter</h2>
+            <canvas id="vuMeter" width="420" height="180" class="mt-4 w-full rounded-xl border border-zinc-700 bg-zinc-950"></canvas>
+            <div id="status" class="mt-4 rounded-xl border border-zinc-700 bg-zinc-900/70 px-4 py-3 text-sm text-zinc-300">
+              Clique em <strong>Ativar Microfone</strong> para iniciar o processamento.
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        audioContext: null,
+        stream: null,
+        isBypass: false,
+        animationFrameId: null,
+      };
+
+      const ui = {
+        btnMic: document.getElementById("btnMic"),
+        btnBypass: document.getElementById("btnBypass"),
+        status: document.getElementById("status"),
+        vuCanvas: document.getElementById("vuMeter"),
+        reverbMix: document.getElementById("reverbMix"),
+        reverbTime: document.getElementById("reverbTime"),
+        delayTime: document.getElementById("delayTime"),
+        delayFeedback: document.getElementById("delayFeedback"),
+        eqLow: document.getElementById("eqLow"),
+        eqMid: document.getElementById("eqMid"),
+        eqHigh: document.getElementById("eqHigh"),
+        compThreshold: document.getElementById("compThreshold"),
+        compRatio: document.getElementById("compRatio"),
+      };
+
+      let nodes = {};
+
+      function createReverbImpulse(ctx, seconds = 1.4) {
+        const rate = ctx.sampleRate;
+        const length = Math.floor(rate * seconds);
+        const impulse = ctx.createBuffer(2, length, rate);
+
+        for (let ch = 0; ch < 2; ch += 1) {
+          const channel = impulse.getChannelData(ch);
+          for (let i = 0; i < length; i += 1) {
+            const t = i / length;
+            channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.1);
+          }
+        }
+        return impulse;
+      }
+
+      function setupAudioGraph(stream) {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = ctx.createMediaStreamSource(stream);
+
+        const compressor = ctx.createDynamicsCompressor();
+        compressor.attack.value = 0.01;
+        compressor.release.value = 0.2;
+
+        const lowEQ = ctx.createBiquadFilter();
+        lowEQ.type = "lowshelf";
+        lowEQ.frequency.value = 150;
+
+        const midEQ = ctx.createBiquadFilter();
+        midEQ.type = "peaking";
+        midEQ.frequency.value = 1200;
+        midEQ.Q.value = 1;
+
+        const highEQ = ctx.createBiquadFilter();
+        highEQ.type = "highshelf";
+        highEQ.frequency.value = 4500;
+
+        const convolver = ctx.createConvolver();
+        convolver.buffer = createReverbImpulse(ctx, Number(ui.reverbTime.value));
+        const reverbGain = ctx.createGain();
+        const dryGain = ctx.createGain();
+
+        const delay = ctx.createDelay(1);
+        const feedback = ctx.createGain();
+        const wetDelay = ctx.createGain();
+
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 1024;
+
+        source.connect(compressor);
+        compressor.connect(lowEQ);
+        lowEQ.connect(midEQ);
+        midEQ.connect(highEQ);
+
+        highEQ.connect(dryGain);
+        highEQ.connect(convolver);
+        convolver.connect(reverbGain);
+
+        highEQ.connect(delay);
+        delay.connect(feedback);
+        feedback.connect(delay);
+        delay.connect(wetDelay);
+
+        dryGain.connect(analyser);
+        reverbGain.connect(analyser);
+        wetDelay.connect(analyser);
+
+        analyser.connect(ctx.destination);
+
+        nodes = { ctx, source, compressor, lowEQ, midEQ, highEQ, convolver, reverbGain, dryGain, delay, feedback, wetDelay, analyser };
+
+        bindControls();
+        updateBypass();
+        drawVuMeter();
+
+        return ctx;
+      }
+
+      function bindControls() {
+        const setReverb = () => {
+          nodes.reverbGain.gain.value = Number(ui.reverbMix.value);
+          nodes.dryGain.gain.value = 1 - Number(ui.reverbMix.value) * 0.3;
+          nodes.convolver.buffer = createReverbImpulse(nodes.ctx, Number(ui.reverbTime.value));
+        };
+
+        const setDelay = () => {
+          nodes.delay.delayTime.value = Number(ui.delayTime.value);
+          nodes.feedback.gain.value = Number(ui.delayFeedback.value);
+          nodes.wetDelay.gain.value = Number(ui.delayFeedback.value) * 0.6;
+        };
+
+        ui.eqLow.addEventListener("input", () => (nodes.lowEQ.gain.value = Number(ui.eqLow.value)));
+        ui.eqMid.addEventListener("input", () => (nodes.midEQ.gain.value = Number(ui.eqMid.value)));
+        ui.eqHigh.addEventListener("input", () => (nodes.highEQ.gain.value = Number(ui.eqHigh.value)));
+
+        ui.compThreshold.addEventListener("input", () => (nodes.compressor.threshold.value = Number(ui.compThreshold.value)));
+        ui.compRatio.addEventListener("input", () => (nodes.compressor.ratio.value = Number(ui.compRatio.value)));
+
+        ui.reverbMix.addEventListener("input", setReverb);
+        ui.reverbTime.addEventListener("input", setReverb);
+        ui.delayTime.addEventListener("input", setDelay);
+        ui.delayFeedback.addEventListener("input", setDelay);
+
+        setReverb();
+        setDelay();
+      }
+
+      function updateBypass() {
+        if (!nodes.dryGain) return;
+        const bypassGain = state.isBypass ? 0 : 1;
+        const passthroughGain = state.isBypass ? 1 : 0;
+
+        nodes.reverbGain.gain.setTargetAtTime(Number(ui.reverbMix.value) * bypassGain, nodes.ctx.currentTime, 0.02);
+        nodes.wetDelay.gain.setTargetAtTime(Number(ui.delayFeedback.value) * 0.6 * bypassGain, nodes.ctx.currentTime, 0.02);
+        nodes.dryGain.gain.setTargetAtTime(state.isBypass ? 1 : 1 - Number(ui.reverbMix.value) * 0.3, nodes.ctx.currentTime, 0.02);
+
+        if (!nodes.passthrough) {
+          nodes.passthrough = nodes.ctx.createGain();
+          nodes.highEQ.connect(nodes.passthrough);
+          nodes.passthrough.connect(nodes.analyser);
+        }
+        nodes.passthrough.gain.setTargetAtTime(passthroughGain, nodes.ctx.currentTime, 0.02);
+
+        ui.btnBypass.textContent = `Bypass: ${state.isBypass ? "ON" : "OFF"}`;
+        ui.btnBypass.classList.toggle("border-rose-400/40", state.isBypass);
+        ui.btnBypass.classList.toggle("bg-rose-500/10", state.isBypass);
+        ui.btnBypass.classList.toggle("text-rose-300", state.isBypass);
+      }
+
+      function drawVuMeter() {
+        const canvas = ui.vuCanvas;
+        const ctx2d = canvas.getContext("2d");
+        const data = new Uint8Array(nodes.analyser.frequencyBinCount);
+
+        function draw() {
+          nodes.analyser.getByteTimeDomainData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i += 1) {
+            const sample = (data[i] - 128) / 128;
+            sum += sample * sample;
+          }
+          const rms = Math.sqrt(sum / data.length);
+          const db = Math.max(-60, 20 * Math.log10(rms || 0.0001));
+          const normalized = (db + 60) / 60;
+
+          ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+          ctx2d.fillStyle = "#111827";
+          ctx2d.fillRect(0, 0, canvas.width, canvas.height);
+
+          const meterWidth = canvas.width * 0.85;
+          const meterHeight = 36;
+          const x = (canvas.width - meterWidth) / 2;
+          const y = (canvas.height - meterHeight) / 2;
+
+          const gradient = ctx2d.createLinearGradient(x, y, x + meterWidth, y);
+          gradient.addColorStop(0, "#22c55e");
+          gradient.addColorStop(0.7, "#facc15");
+          gradient.addColorStop(1, "#ef4444");
+
+          ctx2d.fillStyle = "#1f2937";
+          ctx2d.fillRect(x, y, meterWidth, meterHeight);
+          ctx2d.fillStyle = gradient;
+          ctx2d.fillRect(x, y, meterWidth * Math.max(0, Math.min(normalized, 1)), meterHeight);
+
+          ctx2d.strokeStyle = "#374151";
+          ctx2d.strokeRect(x, y, meterWidth, meterHeight);
+
+          ctx2d.fillStyle = "#d1d5db";
+          ctx2d.font = "600 18px Inter, sans-serif";
+          ctx2d.fillText(`Nível: ${db.toFixed(1)} dB`, x, y - 12);
+
+          state.animationFrameId = requestAnimationFrame(draw);
+        }
+
+        draw();
+      }
+
+      async function initMicrophone() {
+        try {
+          state.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          state.audioContext = setupAudioGraph(state.stream);
+          ui.status.textContent = "Microfone ativo. Cadeia de efeitos em processamento em tempo real.";
+          ui.btnMic.disabled = true;
+          ui.btnMic.classList.add("opacity-50", "cursor-not-allowed");
+        } catch (error) {
+          ui.status.textContent = "Falha ao acessar o microfone. Verifique permissões do navegador.";
+          console.error(error);
+        }
+      }
+
+      ui.btnMic.addEventListener("click", initMicrophone);
+      ui.btnBypass.addEventListener("click", () => {
+        state.isBypass = !state.isBypass;
+        updateBypass();
+      });
+    </script>
+  </body>
+</html>
